@@ -1,5 +1,5 @@
 #base image
-FROM python:3.8
+FROM tensorflow/tensorflow:2.10.0-gpu
 LABEL org.opencontainers.image.source https://github.com/serengil/deepface
 # -----------------------------------
 # create required folder
@@ -11,7 +11,7 @@ COPY ./deepface /app/deepface
 COPY ./api/app.py /app/
 COPY ./api/routes.py /app/
 COPY ./api/service.py /app/
-COPY ./requirements.txt /app/
+COPY ./requirements_docker.txt /app/requirements.txt
 COPY ./setup.py /app/
 COPY ./README.md /app/
 # -----------------------------------
@@ -19,8 +19,11 @@ COPY ./README.md /app/
 WORKDIR /app
 # -----------------------------------
 # update image os
+RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
+RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/3bf863cc.pub
 RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6 -y
+
 # -----------------------------------
 # if you will use gpu, then you should install tensorflow-gpu package
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org tensorflow-gpu
@@ -29,6 +32,7 @@ RUN apt-get install ffmpeg libsm6 libxext6 -y
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
 # -----------------------------------
 # install deepface from source code (always up-to-date)
+RUN pip install --upgrade pip setuptools wheel
 RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e .
 # -----------------------------------
 # some packages are optional in deepface. activate if your task depends on one.
