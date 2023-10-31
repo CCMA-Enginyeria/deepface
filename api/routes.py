@@ -98,3 +98,35 @@ def analyze():
     )
 
     return demographies
+
+@blueprint.route("/find", methods=["POST"])
+def find():
+    input_args = request.get_json()
+    if input_args is None:
+        return {"message": "empty input set passed"}
+
+    img_path = input_args.get("img_path")
+    if img_path is None:
+        return {"message": "you must pass img_path input"}
+
+    db_path = input_args.get("db_path", "/tmp/")
+    model_name = input_args.get("model_name", "VGG-Face")
+    distance_metric = input_args.get("distance_metric", "cosine")
+    enforce_detection = input_args.get("enforce_detection", True)
+    detector_backend = input_args.get("detector_backend", "opencv")
+    align = input_args.get("align",True)
+    normalization = input_args.get("normalization","base")
+    silent = input_args.get("silent", False)
+
+    found = service.find(
+        img_path = img_path,
+        db_path = db_path,
+        model_name = model_name,
+        distance_metric = distance_metric,
+        enforce_detection = enforce_detection,
+        detector_backend = detector_backend,
+        align = align,
+        normalization = normalization,
+        silent = silent
+    )
+    return found, 200, {'content-type':'application/json'}
